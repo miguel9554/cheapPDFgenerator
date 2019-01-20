@@ -10,6 +10,7 @@ def side_by_side_page(page_left, page_right):
 
 
 def make_booklet(filename, initPage=1, endPage=None):
+
     """First page, pairs of pages, last page."""
     blakPDFfilename = "blank.pdf"
     blankPDF = PdfReader(blakPDFfilename).pages[0]
@@ -41,7 +42,7 @@ with open(configFilename, "rt") as csvfile:
     for row in reader:
         documents.append(row)
 
-mainOutput=[]
+mainOutput = []
 MainOutDocumentName = "out.pdf"
 
 for document in documents:
