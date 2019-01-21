@@ -1,3 +1,5 @@
 *.pdf
 *.txt
 .idea
+*.pyc
+*.pyo
