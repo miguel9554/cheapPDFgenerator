@@ -38,13 +38,19 @@ def make_4page_booklet(filename, initPage=1, endPage=None):
     if not endPage:
         endPage = len(ipages)
 
-    outputImpairPages = (endPage - initPage) // 4 + (endPage - initPage) % 4
+    outputImpairPages = (endPage - initPage) // 4 + (((endPage - initPage) % 4) > 0)
 
     ipages = ipages[initPage - 1:endPage]
     opages = []
 
-    for index in range(0, len(ipages), 4):
+    for index in range(0, len(ipages) - len(ipages) % 4, 4):
         opages.append(get4(ipages[index:index + 4]))
+
+    if len(ipages) % 4:
+        aux = ipages[len(ipages) - len(ipages) % 4:len(ipages)]
+        for i in range((4 - len(ipages) % 4)):
+            aux.append(blankPDF)
+        opages.append(get4(aux))
 
     if outputImpairPages:
         opages.append(blankPDF)

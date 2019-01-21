@@ -26,14 +26,14 @@ books.cfg, a 1-page blank pdf file blank.pdf and all of the files to process sho
 
 books.cfg format:
 
-<filename> <offset> <range1> <range2> ... <rangeN>
+<filename> <formnat> <offset> <range1> <range2> ... <rangeN>
 
-this converts filename from "offset" page to N intervals specified in "rangeI", with range as "startPage-endPage"
+this converts filename from "offset" page to N intervals specified in "rangeI", with range as "startPage-endPage", using "format" original pages per output page
 
 example:
 
-grayMeyer 16 78-168 169-250
-schaum
+grayMeyer 2 16 78-168 169-250
+schaum 4
 
-this takes the range specified in the grayMeyer line, converts them taking into account the offset, joins them and makes an individual file named grayMeyer.out
-in the case of schaum, as no offset or interval is specified, the whole document is converted
+this takes the range specified in the grayMeyer line, converts them taking into account the offset, joins them and makes an individual file named grayMeyer.out, stiching 2 pages in 1
+in the case of schaum, as no offset or interval is specified, the whole document is converted stiching 4 pages to 1
