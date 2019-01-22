@@ -37,3 +37,12 @@ schaum 4
 
 this takes the range specified in the grayMeyer line, converts them taking into account the offset, joins them and makes an individual file named grayMeyer.out, stiching 2 pages in 1
 in the case of schaum, as no offset or interval is specified, the whole document is converted stiching 4 pages to 1
+
+
+*****
+
+improvements:
+
+-redefine books.cfg format to be used with argparse lib from python std lib
+-separated modules for reading arguments and generating the files (currently badly hard-coded (if len == 2...))
+-make blank pdf part of the program so it can be made a standalone .exe (otherwise, appart from the .exe file blank.pdf will be needed) (a possibility, with py2exe using data_files)

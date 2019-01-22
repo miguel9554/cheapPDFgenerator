@@ -3,8 +3,8 @@ from pdfrw import PdfReader, PageMerge
 
 def make_2page_booklet(filename, initPage=1, endPage=None):
 
-    blakPDFfilename = "blank.pdf"
-    blankPDF = PdfReader(blakPDFfilename).pages[0]
+    blankPDFfilename = "src/blank.pdf"
+    blankPDF = PdfReader(blankPDFfilename).pages[0]
     ipages = PdfReader(filename).pages
 
     if not endPage:
@@ -31,14 +31,15 @@ def make_2page_booklet(filename, initPage=1, endPage=None):
 
 def make_4page_booklet(filename, initPage=1, endPage=None):
 
-    blakPDFfilename = "blank.pdf"
-    blankPDF = PdfReader(blakPDFfilename).pages[0]
+    blankPDFfilename = "src/blank.pdf"
+    blankPDF = PdfReader(blankPDFfilename).pages[0]
     ipages = PdfReader(filename).pages
 
     if not endPage:
         endPage = len(ipages)
 
-    outputImpairPages = (endPage - initPage) // 4 + (((endPage - initPage) % 4) > 0)
+    outputPages = (endPage - initPage + 1) // 4 + (((endPage - initPage + 1) % 4) > 0)
+    outputImpairPages = outputPages % 2
 
     ipages = ipages[initPage - 1:endPage]
     opages = []
