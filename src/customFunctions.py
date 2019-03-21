@@ -1,62 +1,83 @@
 from pdfrw import PdfReader, PageMerge
 
 
-def make_2page_booklet(filename, initPage=1, endPage=None):
+def make_2page_booklet(filename, pages=None):
 
-    blankPDFfilename = "src/blank.pdf"
-    blankPDF = PdfReader(blankPDFfilename).pages[0]
-    ipages = PdfReader(filename).pages
+    blankPDF_filename = "src/blank.pdf"
+    blankPDF = PdfReader(blankPDF_filename).pages[0]
+    input_pages = PdfReader(filename).pages
 
-    if not endPage:
-        endPage = len(ipages)
+    if not pages:
+        pages = [i for i in range(len(input_pages))]
 
-    ipages = ipages[initPage-1:endPage]
-    opages = []
+    aux = [input_pages[i] for i in pages]
+    input_pages = aux  # check if it is possible to avoid aux
+    output_pages = []
 
-    inputImpairPages = (endPage-initPage+1) % 2
+    inputImpairPages = len(pages) % 2
     if inputImpairPages:
-        outputImpairPages = ((endPage-initPage+2)/2) % 2
+        outputImpairPages = ((len(pages)+1)/2) % 2
     else:
-        outputImpairPages = ((endPage-initPage+1)/2) % 2
+        outputImpairPages = (len(pages)/2) % 2
 
-    while len(ipages) >= 2:
-        opages.append(side_by_side_page(ipages.pop(0), ipages.pop(0)))
+    while len(input_pages) >= 2:
+        output_pages.append(side_by_side_page(input_pages.pop(0), input_pages.pop(0)))
     if inputImpairPages:
-        opages.append(side_by_side_page(ipages.pop(0), blankPDF))
+        output_pages.append(side_by_side_page(input_pages.pop(0), blankPDF))
     if outputImpairPages:
-        opages.append(blankPDF)
+        output_pages.append(blankPDF)
 
-    return opages
+    return output_pages
 
 
-def make_4page_booklet(filename, initPage=1, endPage=None):
+def make_4page_booklet(filename, pages=None):
 
-    blankPDFfilename = "src/blank.pdf"
-    blankPDF = PdfReader(blankPDFfilename).pages[0]
-    ipages = PdfReader(filename).pages
+    blankPDF_filename = "src/blank.pdf"
+    blankPDF = PdfReader(blankPDF_filename).pages[0]
+    input_pages = PdfReader(filename).pages
 
-    if not endPage:
-        endPage = len(ipages)
+    if not pages:
+        pages = [i for i in range(len(input_pages))]
 
-    outputPages = (endPage - initPage + 1) // 4 + (((endPage - initPage + 1) % 4) > 0)
-    outputImpairPages = outputPages % 2
+    number_output_pages = -(-len(pages) // 4)   # divison by 4 rounded up
+    output_impair_pages = number_output_pages % 2
 
-    ipages = ipages[initPage - 1:endPage]
-    opages = []
+    aux = [input_pages[i] for i in pages]
+    input_pages = aux       # check if it is possible to avoid aux
+    output_pages = []
 
-    for index in range(0, len(ipages) - len(ipages) % 4, 4):
-        opages.append(get4(ipages[index:index + 4]))
+    for index in range(0, len(input_pages) - len(input_pages) % 4, 4):
+        output_pages.append(get4(input_pages[index:index + 4]))
 
-    if len(ipages) % 4:
-        aux = ipages[len(ipages) - len(ipages) % 4:len(ipages)]
-        for i in range((4 - len(ipages) % 4)):
+    if len(input_pages) % 4:
+        aux = input_pages[len(input_pages) - len(input_pages) % 4:len(input_pages)]
+        for i in range((4 - len(input_pages) % 4)):
             aux.append(blankPDF)
-        opages.append(get4(aux))
+        output_pages.append(get4(aux))
 
-    if outputImpairPages:
-        opages.append(blankPDF)
+    if output_impair_pages:
+        output_pages.append(blankPDF)
 
-    return opages
+    return output_pages
+
+
+def make_1page_booklet(filename, pages=None):
+
+    blankPDF_filename = "src/blank.pdf"
+    blankPDF = PdfReader(blankPDF_filename).pages[0]
+    input_pages = PdfReader(filename).pages
+
+    if not pages:
+        pages = [i for i in range(len(input_pages))]
+
+    output_pages = []
+
+    for page_idx in pages:
+        output_pages.append(PdfReader(filename).pages[page_idx])
+    if len(pages) % 2:
+        output_pages.append(blankPDF)
+
+    return output_pages
 
 
 def get4(srcpages):
