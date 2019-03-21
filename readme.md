@@ -17,7 +17,7 @@ The programs deals with putting a blank file on intervals that are uneven, so wh
 
 considerations to run the program:
 
-the command to run the program is "python generatePDF.py" (or python src/generatePDF.py if you run the program from the main folder)
+the command to run the program is "python generatePDF.py" (or python src/generatePDF.py if you run the program from the main folder).
 books.cfg, a 1-page blank pdf file blank.pdf and all of the files to process should be in the directory where the python script is runned
 
 
@@ -26,9 +26,9 @@ books.cfg, a 1-page blank pdf file blank.pdf and all of the files to process sho
 
 books.cfg format:
 
-<filename> <formnat> <offset> <range1> <range2> ... <rangeN>
+<filename>;<format>;<offset>;<range1>;<range2>;...;<rangeN>
 
-this converts filename from "offset" page to N intervals specified in "rangeI", with range as "startPage-endPage", using "format" original pages per output page
+this converts filename from "offset" page to N intervals specified in "rangeI", with range as "startPage-endPage", using "format" original pages per output page (can be 1, 2 or 4)
 
 example:
 

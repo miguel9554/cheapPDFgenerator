@@ -25,17 +25,29 @@ for document in documents:
             documents = [document[0] + ".pdf"]
 
         if document[1] == str(2):
+
             for doc in documents:
                 currentOutDocumentName = "out." + doc
                 currentOutput = make_2page_booklet(doc)
                 mainOutput += currentOutput
                 PdfWriter(currentOutDocumentName).addpages(currentOutput).write()
+
         elif document[1] == str(4):
+
             for doc in documents:
                 currentOutDocumentName = "out." + doc
                 currentOutput = make_4page_booklet(doc)
                 mainOutput += currentOutput
                 PdfWriter(currentOutDocumentName).addpages(currentOutput).write()
+
+        elif document[1] == str(1):
+
+            for doc in documents:
+                currentOutDocumentName = "out." + doc
+                currentOutput = PdfReader(doc).pages
+                mainOutput += currentOutput
+                PdfWriter(currentOutDocumentName).addpages(currentOutput).write()
+
         else:
             print(document[1])
             print("error")
@@ -55,6 +67,10 @@ for document in documents:
                 currentOutput += make_2page_booklet(inDocumentName, startPage, endPage)
             elif document[1] == str(4):
                 currentOutput += make_4page_booklet(inDocumentName, startPage, endPage)
+            elif document[1] == str(1):
+                aux = PdfReader(inDocumentName).pages[startPage - 1: endPage]
+                currentOutput += aux
+                PdfWriter(currentOutDocumentName[:-4] + str(startPage) + ".pdf").addpages(aux).write()
             mainOutput += currentOutput
         PdfWriter(currentOutDocumentName).addpages(currentOutput).write()
 
