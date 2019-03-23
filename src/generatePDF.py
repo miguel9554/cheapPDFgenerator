@@ -1,96 +1,80 @@
 import csv
+import argparse
 from pdfrw import PdfWriter
 from customFunctions import *
 from glob import glob
 
-documents = []
+parser = argparse.ArgumentParser("Programa para generar pdfs imprimibles")
+parser.add_argument("-min", "--minimal", action="store_true", help="generate minimal output, just one file per pdf")
+parser.add_argument("-ch", "--check", action="store_true", help="check if page contents are different")
+args = parser.parse_args()
 
-configFilename = "books.cfg"
+specifications = []
 
-with open(configFilename, "rt") as csvfile:
+specifications_filename = "books.cfg"
+
+with open(specifications_filename, "rt") as csvfile:
     reader = csv.reader(csvfile, delimiter=';')
     for row in reader:
-        documents.append(row)
+        specifications.append(row)
 
-mainOutput = []
-MainOutDocumentName = "out.pdf"
+main_output = []
+main_output_filename = "out.pdf"
 
-for document in documents:
+for specification in specifications:
 
-    if len(document) == 2:
+    filename_specification = specification[0]
+    stitch = int(specification[1])
 
-        if '*' in document[0]:
-            documents = glob(document[0])
-        else:
-            documents = [document[0] + ".pdf"]
-
-        if document[1] == str(2):
-
-            for doc in documents:
-                currentOutDocumentName = "out." + doc
-                currentOutput = make_2page_booklet(doc)
-                mainOutput += currentOutput
-                PdfWriter(currentOutDocumentName).addpages(currentOutput).write()
-
-        elif document[1] == str(4):
-
-            for doc in documents:
-                currentOutDocumentName = "out." + doc
-                currentOutput = make_4page_booklet(doc)
-                mainOutput += currentOutput
-                PdfWriter(currentOutDocumentName).addpages(currentOutput).write()
-
-        elif document[1] == str(1):
-
-            for doc in documents:
-                currentOutDocumentName = "out." + doc
-                currentOutput = PdfReader(doc).pages
-                mainOutput += currentOutput
-                PdfWriter(currentOutDocumentName).addpages(currentOutput).write()
-
-        else:
-            print(document[1])
-            print("error")
-
-        continue
-
+    if '*' in filename_specification:
+        documents_filenames = glob(filename_specification)
     else:
+        documents_filenames = [filename_specification]
 
-        inDocumentName = document[0] + ".pdf"
-        currentOutDocumentName = "out." + inDocumentName
-        docOutput = []
-        offset = int(document[2])
-        for i in range(3, len(document)):
+    for document_filename in documents_filenames:
 
-            currentOutput = []
-            page_range = document[i]
-            temp_page_range = []
+        document_output = []
+        document_output_filename = "out." + document_filename
+        offset = int(specification[2]) if len(specification) > 2 else '0'
+        page_range_list = [] if len(specification) > 2 else [None]
 
-            for curent_page_range in page_range.split('+'):
-                if '-' in curent_page_range:
-                    startPage = offset + int(curent_page_range.split('-')[0])
-                    endPage = offset + int(curent_page_range.split('-')[1])
-                    for page_number in range(startPage-1, endPage):
-                        temp_page_range.append(page_number)
-                elif ',' in curent_page_range:
-                    for inner_page in curent_page_range.split(','):
-                        temp_page_range.append(int(inner_page) + offset - 1)
+        for i in range(3, len(specification)):
+
+            page_range = []
+            page_range_specification = specification[i]
+
+            for page_number_specification in page_range_specification.split('+'):
+
+                if '-' in page_number_specification:
+
+                    start_page = offset + int(page_number_specification.split('-')[0])
+                    end_page = offset + int(page_number_specification.split('-')[1])
+
+                    for page_number in range(start_page - 1, end_page):
+
+                        page_range.append(page_number)
+
+                elif ',' in page_number_specification:
+
+                    for page_number in page_number_specification.split(','):
+
+                        page_range.append(int(page_number) + offset - 1)
+
                 else:
-                    temp_page_range.append(int(curent_page_range))
 
-            page_range = temp_page_range
+                    page_range.append(int(page_number_specification))
 
-            if document[1] == str(2):
-                currentOutput += make_2page_booklet(inDocumentName, page_range)
-            elif document[1] == str(4):
-                currentOutput += make_4page_booklet(inDocumentName, page_range)
-            elif document[1] == str(1):
-                currentOutput += make_1page_booklet(inDocumentName, page_range)
+            page_range_list.append(page_range)
 
-            PdfWriter(currentOutDocumentName[:-4] + '_' + document[i] + '.pdf').addpages(currentOutput).write()
-            docOutput += currentOutput
-            mainOutput += currentOutput
+        for page_range in page_range_list:
 
-        PdfWriter(currentOutDocumentName).addpages(docOutput).write()
+            page_range_output = make_booklet(document_filename, stitch, page_range)
 
-PdfWriter(MainOutDocumentName).addpages(mainOutput).write()
+            if not args.minimal:
+                PdfWriter(document_output_filename[:-4] + (('_' + '-'.join(str(i) for i in page_range)) if page_range else '') + '.pdf').addpages(page_range_output).write()
+            document_output += page_range_output
+            main_output += page_range_output
+
+        PdfWriter(document_output_filename).addpages(document_output).write()
+
+PdfWriter(main_output_filename).addpages(main_output).write()
