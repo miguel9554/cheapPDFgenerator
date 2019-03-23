@@ -3,4 +3,5 @@
 .idea
 *.pyc
 *.pyo
+out*/
 !src/blank.pdf
