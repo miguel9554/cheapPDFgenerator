@@ -1,80 +1,103 @@
-import csv
 import argparse
+import os
+import configparser
+import datetime
+import glob
 from pdfrw import PdfWriter
 from customFunctions import *
-from glob import glob
+
+
+class Specification:
+
+    def __init__(self, filename, stitch, clean, offset=0, page_lists=None):
+        self.filename = filename
+        self.stitch = stitch
+        self.offset = offset
+        self.clean = clean
+        self.page_lists = page_lists if page_lists else [None]
+
+
+def get_specification(filename):
+
+    config = configparser.ConfigParser()
+    config.read(filename)
+
+    specifications = []
+
+    for section in config.sections():
+
+        filename_specification = config[section]['filename']
+        stitch = int(config[section]['stitch'])
+        clean = True if 'clean' in config[section] else False
+
+        if '*' in filename_specification:
+            documents_filenames = glob.glob(filename_specification)
+        else:
+            documents_filenames = [filename_specification]
+
+        for document_filename in documents_filenames:
+
+            offset = int(config[section]['offset'])
+            page_ranges_raw = config[section]['pages']
+            pages_list = []
+
+            if page_ranges_raw:
+                for page_range in page_ranges_raw.split('/'):
+
+                    current_pages = []
+
+                    for page_interval in page_range.split(','):
+
+                        if '-' in page_interval:
+                            start_page = offset + int(page_interval.split('-')[0])
+                            end_page = offset + int(page_interval.split('-')[1])
+                            for page_number in range(start_page - 1, end_page):
+                                current_pages.append(page_number)
+                        else:
+                            current_pages.append(int(page_interval) + offset - 1)
+
+                    pages_list.append(current_pages)
+            else:
+
+                pages_list = [None]
+
+            specifications.append(Specification(document_filename, stitch, clean, offset, pages_list))
+
+    return specifications
+
 
 parser = argparse.ArgumentParser("Programa para generar pdfs imprimibles")
 parser.add_argument("-min", "--minimal", action="store_true", help="generate minimal output, just one file per pdf")
-parser.add_argument("-ch", "--check", action="store_true", help="check if page contents are different")
 args = parser.parse_args()
 
-specifications = []
+specifications_filename = "config.ini"
+specifications = get_specification(specifications_filename)
 
-specifications_filename = "books.cfg"
+output_dirname = "out"
 
-with open(specifications_filename, "rt") as csvfile:
-    reader = csv.reader(csvfile, delimiter=';')
-    for row in reader:
-        specifications.append(row)
+if os.path.exists(output_dirname):
+    output_dirname += datetime.datetime.now().strftime('_%H_%M_%d_%m_%Y')
+    os.makedirs(output_dirname)
+else:
+    os.makedirs(output_dirname)
 
 main_output = []
-main_output_filename = "out.pdf"
+main_output_filename = os.path.join(output_dirname, "out.pdf")
 
 for specification in specifications:
 
-    filename_specification = specification[0]
-    stitch = int(specification[1])
+    document_output = []
+    document_output_filename = os.path.join(output_dirname, specification.filename)
 
-    if '*' in filename_specification:
-        documents_filenames = glob(filename_specification)
-    else:
-        documents_filenames = [filename_specification]
+    for page_lists in specification.page_lists:
 
-    for document_filename in documents_filenames:
+        page_range_output = make_booklet(specification.filename, specification.stitch, specification.clean, page_lists)
 
-        document_output = []
-        document_output_filename = "out." + document_filename
-        offset = int(specification[2]) if len(specification) > 2 else '0'
-        page_range_list = [] if len(specification) > 2 else [None]
+        if not args.minimal:
+            PdfWriter(document_output_filename[:-4] + (('_' + '-'.join(str(i) for i in page_lists)) if page_lists else '') + '.pdf').addpages(page_range_output).write()
+        document_output += page_range_output
+        main_output += page_range_output
 
-        for i in range(3, len(specification)):
-
-            page_range = []
-            page_range_specification = specification[i]
-
-            for page_number_specification in page_range_specification.split('+'):
-
-                if '-' in page_number_specification:
-
-                    start_page = offset + int(page_number_specification.split('-')[0])
-                    end_page = offset + int(page_number_specification.split('-')[1])
-
-                    for page_number in range(start_page - 1, end_page):
-
-                        page_range.append(page_number)
-
-                elif ',' in page_number_specification:
-
-                    for page_number in page_number_specification.split(','):
-
-                        page_range.append(int(page_number) + offset - 1)
-
-                else:
-
-                    page_range.append(int(page_number_specification))
-
-            page_range_list.append(page_range)
-
-        for page_range in page_range_list:
-
-            page_range_output = make_booklet(document_filename, stitch, page_range)
-
-            if not args.minimal:
-                PdfWriter(document_output_filename[:-4] + (('_' + '-'.join(str(i) for i in page_range)) if page_range else '') + '.pdf').addpages(page_range_output).write()
-            document_output += page_range_output
-            main_output += page_range_output
-
-        PdfWriter(document_output_filename).addpages(document_output).write()
+    PdfWriter(document_output_filename).addpages(document_output).write()
 
 PdfWriter(main_output_filename).addpages(main_output).write()

@@ -1,5 +1,38 @@
 import pdfrw
+import tempfile
+import uuid
+import os
 from tika import parser
+
+
+def clean_file(filename, out_filename):
+
+    pages = list(range(len(pdfrw.PdfReader(filename).pages)))
+    input_file = pdfrw.PdfReader(filename)
+
+    output_pages = []
+
+    current_content = ''
+    old_content = ''
+
+    with tempfile.TemporaryDirectory() as tmpdirname:
+
+        for page in pages:
+
+            temp_filename = os.path.join(tmpdirname, str(uuid.uuid4()))
+            pdfrw.PdfWriter(temp_filename).addpage(input_file.pages[page]).write()
+
+            current_content = parser.from_file(temp_filename)['content']
+
+            if current_content != old_content:
+                output_pages.append(input_file.pages[page])
+            else:
+                output_pages.pop()
+                output_pages.append(input_file.pages[page])
+
+            old_content = current_content
+
+    pdfrw.PdfWriter(out_filename).addpages(output_pages).write()
 
 
 def get_page_content(filename, page):
@@ -12,11 +45,17 @@ def get_page_content(filename, page):
     return parser.from_file(temp_filename)['content']
 
 
-def make_booklet(filename, stitch, pages=None):
+def make_booklet(filename, stitch, clean, pages=None):
 
     blank_pdf_filename = "src/blank.pdf"
     blank_pdf = pdfrw.PdfReader(blank_pdf_filename).pages[0]
-    input_pages = pdfrw.PdfReader(filename).pages
+    tmp_filename = str(uuid.uuid4())
+
+    if clean:
+        clean_file(filename, tmp_filename)
+        input_pages = pdfrw.PdfReader(tmp_filename).pages
+    else:
+        input_pages = pdfrw.PdfReader(filename).pages
 
     if not pages:
         pages = [i for i in range(len(input_pages))]
@@ -49,6 +88,9 @@ def make_booklet(filename, stitch, pages=None):
 
     if output_impair_pages:
         output_pages.append(blank_pdf)
+
+    if clean:
+        os.remove(tmp_filename)
 
     return output_pages
 

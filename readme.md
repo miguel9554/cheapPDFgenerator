@@ -18,31 +18,19 @@ The programs deals with putting a blank file on intervals that are uneven, so wh
 considerations to run the program:
 
 the command to run the program is "python generatePDF.py" (or python src/generatePDF.py if you run the program from the main folder).
-books.cfg, a 1-page blank pdf file blank.pdf and all of the files to process should be in the directory where the python script is runned
+config.ini should be where you are running the script, and a 1 page blank pdf should be where "generatePDF.py" is located
 
 
 ********************
 
 
-books.cfg format:
+config.ini format:
 
-<filename>;<format>;<offset>;<range1>;<range2>;...;<rangeN>
+[id] --------------------> identifier for each specification, can be anything, for safety make it an increasing list of integers
 
-this converts filename from "offset" page to N intervals specified in "rangeI", with range as "startPage-endPage", using "format" original pages per output page (can be 1, 2 or 4)
-
-example:
-
-grayMeyer 2 16 78-168 169-250
-schaum 4
-
-this takes the range specified in the grayMeyer line, converts them taking into account the offset, joins them and makes an individual file named grayMeyer.out, stiching 2 pages in 1
-in the case of schaum, as no offset or interval is specified, the whole document is converted stiching 4 pages to 1
-
-
-*****
-
-improvements:
-
--redefine books.cfg format to be used with argparse lib from python std lib
--separated modules for reading arguments and generating the files (currently badly hard-coded (if len == 2...))
--make blank pdf part of the program so it can be made a standalone .exe (otherwise, appart from the .exe file blank.pdf will be needed) (a possibility, with py2exe using data_files)
+filename = arq_ip.pdf ---> name of the file, or regular expression to process many files with the same configuration
+stitch = 4 --------------> pages to be stitched
+offset = 0 --------------> offset in the number of pages
+clean = True ------------> make it true to ommit pages with the same content, for normal processing make it false or dont include it
+pages =  ----------------> intervals, separated by '/', and each intervals separates pages by ',', a dash '-' indicates continuos pages
+	example pages = 1-5/6,7,11,13-15 ---> 2 page intervals, first one [1,2,3,4,5], second one [6,7,11,13,14,15]
