@@ -28,7 +28,10 @@ def get_specification(filename):
 
         filename_specification = config[section]['filename']
         stitch = int(config[section]['stitch'])
-        clean = True if 'clean' in config[section] else False
+        if 'clean' in config[section]:
+            clean = config[section]
+        else:
+            clean = False
 
         if '*' in filename_specification:
             documents_filenames = glob.glob(filename_specification)
