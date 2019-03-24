@@ -76,7 +76,7 @@ specifications = get_specification(specifications_filename)
 output_dirname = "out"
 
 if os.path.exists(output_dirname):
-    output_dirname += datetime.datetime.now().strftime('_%H_%M_%d_%m_%Y')
+    output_dirname += datetime.datetime.now().strftime('_%H_%M_%S_%d_%m_%Y')
     os.makedirs(output_dirname)
 else:
     os.makedirs(output_dirname)

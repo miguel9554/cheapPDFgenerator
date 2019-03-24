@@ -47,8 +47,6 @@ def get_page_content(filename, page):
 
 def make_booklet(filename, stitch, clean, pages=None):
 
-    blank_pdf_filename = "src/blank.pdf"
-    blank_pdf = pdfrw.PdfReader(blank_pdf_filename).pages[0]
     tmp_filename = str(uuid.uuid4())
 
     if clean:
@@ -78,15 +76,30 @@ def make_booklet(filename, stitch, clean, pages=None):
             exit("ERROR: invalid stitch")
 
     if len(input_pages) % stitch:
+
         if stitch == 4:
+
             aux = input_pages[len(input_pages) - len(input_pages) % 4:len(input_pages)]
-            for i in range((4 - len(input_pages) % 4)):
+
+            blank_pdf = pdfrw.PdfReader(filename).pages[len(input_pages) - 1]
+            blank_pdf['/Contents'].stream = ""
+
+            for i in range(4 - len(input_pages) % 4):
                 aux.append(blank_pdf)
+
             output_pages.append(get4(aux))
-        if stitch == 2:
-            output_pages.append(side_by_side_page(input_pages.pop(len(input_pages)-1), blank_pdf))
+
+        elif stitch == 2:
+
+            blank_pdf = pdfrw.PdfReader(filename).pages[len(input_pages) - 1]
+            blank_pdf['/Contents'].stream = ""
+
+            output_pages.append(side_by_side_page(input_pages[(len(input_pages)-1)], blank_pdf))
 
     if output_impair_pages:
+
+        blank_pdf = get4(pdfrw.PdfReader(filename).pages[len(input_pages) - 5:len(input_pages) - 1])
+        blank_pdf['/Contents'].stream = ""
         output_pages.append(blank_pdf)
 
     if clean:

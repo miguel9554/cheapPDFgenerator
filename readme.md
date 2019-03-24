@@ -18,7 +18,7 @@ The programs deals with putting a blank file on intervals that are uneven, so wh
 considerations to run the program:
 
 the command to run the program is "python generatePDF.py" (or python src/generatePDF.py if you run the program from the main folder).
-config.ini should be where you are running the script, and a 1 page blank pdf should be where "generatePDF.py" is located
+config.ini should be where you are running the script
 
 
 ********************
