@@ -29,7 +29,7 @@ def get_specification(filename):
         filename_specification = config[section]['filename']
         stitch = int(config[section]['stitch'])
         if 'clean' in config[section]:
-            clean = config[section]
+            clean = True if config[section]['clean'].lower() == 'true' else False
         else:
             clean = False
 
@@ -97,7 +97,7 @@ for specification in specifications:
         page_range_output = make_booklet(specification.filename, specification.stitch, specification.clean, page_lists)
 
         if not args.minimal:
-            PdfWriter(document_output_filename[:-4] + (('_' + '-'.join(str(i) for i in page_lists)) if page_lists else '') + '.pdf').addpages(page_range_output).write()
+            PdfWriter(document_output_filename[:-4] + (('_' + '-'.join([str(page_lists[0]), str(page_lists[len(page_lists)-1])]) if page_lists else '') + '.pdf')).addpages(page_range_output).write()
         document_output += page_range_output
         main_output += page_range_output
 

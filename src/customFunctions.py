@@ -98,9 +98,18 @@ def make_booklet(filename, stitch, clean, pages=None):
 
     if output_impair_pages:
 
-        blank_pdf = get4(pdfrw.PdfReader(filename).pages[len(input_pages) - 5:len(input_pages) - 1])
-        blank_pdf['/Contents'].stream = ""
-        output_pages.append(blank_pdf)
+        if stitch == 4:
+
+            blank_pdf = get4(pdfrw.PdfReader(filename).pages[len(input_pages) - 5:len(input_pages) - 1])
+            blank_pdf['/Contents'].stream = ""
+            output_pages.append(blank_pdf)
+
+        elif stitch == 2:
+
+            blank_pdf = pdfrw.PdfReader(filename).pages[len(input_pages) - 1]
+            blank_pdf['/Contents'].stream = ""
+
+            output_pages.append(side_by_side_page(blank_pdf, blank_pdf))
 
     if clean:
         os.remove(tmp_filename)
