@@ -71,7 +71,7 @@ def make_booklet(filename, stitch, clean, pages=None):
         elif stitch == 2:
             output_pages.append(side_by_side_page(input_pages[index], input_pages[index + 1]))
         elif stitch == 1:
-            output_pages.append(pdfrw.PdfReader(filename).pages[index])
+            output_pages.append(input_pages[index])
         else:
             exit("ERROR: invalid stitch")
 
