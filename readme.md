@@ -13,7 +13,7 @@ The programs deals with putting a blank file on intervals that are uneven, so wh
   
 ********************  
   
-Requirements to ru the program:  
+Requirements to run the program:  
   
 -Python 3  
 -tika module  
