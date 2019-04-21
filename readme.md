@@ -40,6 +40,5 @@ offset = 0 --------------> offset in the number of pages
 clean = True ------------> make it true to ommit pages with the same content, for normal processing make it false or dont include it  
 pages =  ----------------> intervals, separated by '/', and each intervals separates pages by ',', a dash '-' indicates continuos pages  
 	example:  
-
 	pages = 1-5/6,7,11,13-15 ---> 2 page intervals, first one [1,2,3,4,5], second one [6,7,11,13,14,15]  
 	to include all pages, leave the field empty (pages = )  
