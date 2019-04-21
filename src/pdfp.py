@@ -4,7 +4,7 @@ import configparser
 import datetime
 import glob
 from pdfrw import PdfWriter
-from customFunctions import *
+from functions import *
 
 
 class Specification:
